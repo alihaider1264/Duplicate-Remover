@@ -2,6 +2,7 @@ import os
 from PIL import Image
 import imagehash
 import numpy as np
+from tqdm import tqdm
 
 class DuplicateRemover:
     """Class finds and removes duplicates"""
@@ -19,26 +20,37 @@ class DuplicateRemover:
         hashes = {}
         duplicates = []
         print("Finding Duplicates in {}".format(self.dirname))
-        for image in fnames:
+        for image in tqdm(fnames):
             with Image.open(os.path.join(self.dirname,image)) as img:
                 temp_hash = imagehash.dhash(img, self.hash_size)
                 if temp_hash in hashes:
-                    #print("Duplicate: ", image, "\t", hashes[temp_hash], "\t", temp_hash)
                     print("{:20s} {:20s} {}".format(image, hashes[temp_hash], temp_hash))
                     duplicates.append(image)
                 else:
                     hashes[temp_hash] = image
                    
         if len(duplicates) != 0:
-            print("Do you want to delete these", str(len(duplicates)), "Images? Press Y or N:")
+            print("What would you like to do with the", str(len(duplicates)), " duplicates images found? \nd: Delete them\nm: Move them\nn: Do nothing")
             a = input()
             space_saved = 0
-            if(a.strip().lower() == "y"):
+            if(a.strip().lower() == "m"):
+                print("Note that files with same name in the moved folder will be overwritten.")
+                new_folder = input("Enter name for the new folder to  move duplicated: ")
+                if not os.path.isdir(new_folder):
+                    os.mkdir(os.path.join(new_folder))
+                for duplicate in tqdm(duplicates):
+                    space_saved += os.path.getsize(os.path.join(self.dirname,duplicate))
+                    
+                    os.replace(os.path.join(self.dirname,duplicate), os.path.join(new_folder,duplicate))
+                    print(duplicate, "Moved Succesfully!")
+    
+                print("You saved", str(round(space_saved/1000000,2)) ,"MB of Space!")
+            elif(a.strip().lower() == "d"):
                 for duplicate in duplicates:
                     space_saved += os.path.getsize(os.path.join(self.dirname,duplicate))
                     
                     os.remove(os.path.join(self.dirname,duplicate))
-                    print(duplicate, "Deleted Succesfully!")
+                    print(duplicate, "Moved Succesfully!")
     
                 print("You saved", str(round(space_saved/1000000,2)) ,"MB of Space!")
             else:
