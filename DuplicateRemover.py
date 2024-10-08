@@ -9,6 +9,13 @@ class DuplicateRemover:
 
     def __init__(self,dirname,hash_size = 8):
         self.dirname = dirname
+        if not os.path.isdir(dirname):
+            print("Directory does not exist...")
+        else:
+            dir_items = os.listdir(self.dirname)
+            for i in dir_items:
+                print(i)
+
         self.hash_size = hash_size
        
     def find_duplicates(self):
