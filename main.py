@@ -1,9 +1,9 @@
 from DuplicateRemover import DuplicateRemover
 
-dirname = "images"
+DIR_NAME = "../duplicate-images"
 
 # Remove Duplicates
-dr = DuplicateRemover(dirname)
+dr = DuplicateRemover(DIR_NAME)
 dr.find_duplicates()
 
 # Find Similar Images
