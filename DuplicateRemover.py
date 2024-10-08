@@ -23,7 +23,7 @@ class DuplicateRemover:
             with Image.open(os.path.join(self.dirname,image)) as img:
                 temp_hash = imagehash.average_hash(img, self.hash_size)
                 if temp_hash in hashes:
-                    print("Duplicate", image, "found for Image", hashes[temp_hash], "!")
+                    print("Duplicate: ", image, " --> ", hashes[temp_hash], "!")
                     duplicates.append(image)
                 else:
                     hashes[temp_hash] = image
@@ -39,7 +39,7 @@ class DuplicateRemover:
                     os.remove(os.path.join(self.dirname,duplicate))
                     print(duplicate, "Deleted Succesfully!")
     
-                print("\n\nYou saved", str(round(space_saved/1000000),2) ,"MB of Space!")
+                print("You saved", str(round(space_saved/1000000,2)) ,"MB of Space!")
             else:
                 print("Thank you for Using Duplicate Remover")
         else:
