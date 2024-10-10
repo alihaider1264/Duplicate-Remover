@@ -10,11 +10,7 @@ class DuplicateRemover:
     def __init__(self,dirname,hash_size = 8):
         self.dirname = dirname
         if not os.path.isdir(dirname):
-            print("Directory does not exist...")
-        else:
-            dir_items = os.listdir(self.dirname)
-            for i in dir_items:
-                print(i)
+            print("Directory {} does not exist...".format(self.dirname))
 
         self.hash_size = hash_size
        
@@ -28,13 +24,15 @@ class DuplicateRemover:
         duplicates = []
         print("Finding Duplicates in {}".format(self.dirname))
         for image in tqdm(fnames):
-            with Image.open(os.path.join(self.dirname,image)) as img:
-                temp_hash = imagehash.dhash(img, self.hash_size)
-                if temp_hash in hashes:
-                    print("{:20s} {:20s} {}".format(image, hashes[temp_hash], temp_hash))
-                    duplicates.append(image)
-                else:
-                    hashes[temp_hash] = image
+            if image.lower().endswith(('.png', '.jpg', '.jpeg', '.tiff', '.bmp', '.gif', '.heic')):
+                if not image.startswith('.'):
+                    with Image.open(os.path.join(self.dirname,image)) as img:
+                        temp_hash = imagehash.dhash(img, self.hash_size)
+                        if temp_hash in hashes:
+                            print("{:20s} {:20s} {}".format(image, hashes[temp_hash], temp_hash))
+                            duplicates.append(image)
+                        else:
+                            hashes[temp_hash] = image
                    
         if len(duplicates) != 0:
             print("What would you like to do with the", str(len(duplicates)), " duplicates images found? \nd: Delete them\nm: Move them\nn: Do nothing")
@@ -43,12 +41,12 @@ class DuplicateRemover:
             if(a.strip().lower() == "m"):
                 print("Note that files with same name in the moved folder will be overwritten.")
                 new_folder = input("Enter name for the new folder to  move duplicated: ")
-                if not os.path.isdir(new_folder):
-                    os.mkdir(os.path.join(new_folder))
+                if not os.path.isdir(os.path.join(self.dirname, new_folder)):
+                    os.mkdir(os.path.join(self.dirname, new_folder))
                 for duplicate in tqdm(duplicates):
                     space_saved += os.path.getsize(os.path.join(self.dirname,duplicate))
                     
-                    os.replace(os.path.join(self.dirname,duplicate), os.path.join(new_folder,duplicate))
+                    os.replace(os.path.join(self.dirname,duplicate), os.path.join(self.dirname, new_folder,duplicate))
                     print(duplicate, "Moved Succesfully!")
     
                 print("You saved", str(round(space_saved/1000000,2)) ,"MB of Space!")
@@ -87,7 +85,24 @@ class DuplicateRemover:
                     print("{} image found {}% similar to {}".format(image,similarity,location))
                     
                     
-                    
-                
+    def move_videos(self):
+        """Move .mov videos from src to a new videos folder"""
+        fnames = os.listdir(self.dirname)
+        new_folder = "videos"
+        print("Moving videos from in {}".format(self.dirname))
+
+        if not os.path.isdir(os.path.join(self.dirname, new_folder)):
+            os.mkdir(os.path.join(self.dirname, new_folder))
+
+        videos_list = []
+        for file in tqdm(fnames):
+            if file.lower().endswith(('.mov')):
+                if not file.startswith('.'):
+                    videos_list.append(file)
         
+        print("{} videos found.".format(videos_list))
+
+        for video in tqdm(videos_list):
+            os.replace(os.path.join(self.dirname,video), os.path.join(self.dirname, new_folder,video))
+            print(video, "Moved Succesfully!")
             

@@ -1,3 +1,7 @@
+##Updates
+Updates to move videos from one folder to another
+Tested with 37000 images.
+
 ## Find Duplicate and Similar Images
 
 Check out the tutorial
